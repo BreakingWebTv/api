@@ -68,7 +68,7 @@ export async function getSession(req: TIncomingMessage): Promise<Record<string, 
     return undefined;
 }
 
-export function getQuery(req: TIncomingMessage): Record<string, any> {
+export function getQuery(req: TIncomingMessage): Record<string, string | number> {
     const url = new URL(req.url || '', `https://${req.headers.host}`);
     const query: Record<string, string | number> = {};
     const params = url.searchParams;

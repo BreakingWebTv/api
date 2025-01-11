@@ -10,22 +10,12 @@ export default class GetPostsRoute implements TRoute {
 
     async execute(req: TIncomingMessage, res: TServerResponse) {
         const query = getQuery(req);
-        if (query.tags) {
-            if (!Array.isArray(query.tags)) {
-                return Response(res, {
-                    status: 400,
-                    message: 'payload.invalid.tags'
-                }, 400);
-            }
+        let tags: string[] = [];
 
-            if (query.tags.some(tag => typeof tag !== 'string')) {
-                return Response(res, {
-                    status: 400,
-                    message: 'payload.invalid.tags'
-                }, 400);
-            }
+        if (query.tags && typeof query.tags === 'string') {
+            tags = query.tags.split(',');
 
-            const tagsAreValid = await validateTags(query.tags);
+            const tagsAreValid = await validateTags(tags);
             if (!tagsAreValid) {
                 return Response(res, {
                     status: 400,
@@ -59,7 +49,17 @@ export default class GetPostsRoute implements TRoute {
             });
         }
 
-        const data = await fetchPosts(query.query, query.tags ?? [], query.page ?? 0, query.limit ?? 15);
+        let page = 0;
+        if (query.page && typeof query.page === 'number') {
+            page = query.page;
+        }
+
+        let limit = 15;
+        if (query.limit && typeof query.limit === 'number' && query.limit <= 50) {
+            limit = query.limit;
+        }
+
+        const data = await fetchPosts(query.query, tags, page, limit);
 
         await RedisCache.getInstance().set('posts:list:' + JSON.stringify(query), data);
 
