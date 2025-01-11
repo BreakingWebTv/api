@@ -56,11 +56,11 @@ export default class GetPostRoute implements TRoute {
             }, 404)
         }
 
-        await RedisCache.getInstance().set('posts:' + post._id, post, Time.Week);
-        await RedisCache.getInstance().set('posts:uniqueSlug:' + post.uniqueSlug, post._id, Time.Week);
+        await RedisCache.getInstance().set('posts:' + post._id, post, Time.Day);
+        await RedisCache.getInstance().set('posts:uniqueSlug:' + post.uniqueSlug, post._id, Time.Day);
 
         for (const content of post.contents) {
-            await RedisCache.getInstance().set('posts:slug:' + content.slug, post._id, Time.Week);
+            await RedisCache.getInstance().set('posts:slug:' + content.slug, post._id, Time.Day);
         }
 
         return Response(res, {
